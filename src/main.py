@@ -1,18 +1,22 @@
+import logging
+
 import uvicorn
 from fastapi import FastAPI
+
+from config import settings
+from infrastructure.database import engine, mapper_registery
 
 app = FastAPI()
 
 
+mapper_registery.metadata.create_all(bind=engine)
+
+
 @app.get("/")
 async def root() -> dict:
-    return {"message": "Hello World"}
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: str = "") -> dict:
-    return {"item_id": item_id, "q": q or ""}
+    return {"App name": settings.app_name, "Base directory": settings.base_directory}
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    logging.debug("App Starting ...")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
