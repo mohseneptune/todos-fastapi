@@ -1,22 +1,32 @@
-import logging
+from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from sqlalchemy.orm import clear_mappers
 
 from config import settings
-from infrastructure.database import engine, mapper_registery
+from infrastructure import engine, logger, mapper_registery
+from user.orm import start_user_mapper
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(fastapi_app: FastAPI):
+    logger.warning("fastapi_app.docs_url: %s", fastapi_app.docs_url)
+    mapper_registery.metadata.create_all(engine)
+    start_user_mapper()
+    yield
+    clear_mappers()
 
 
-mapper_registery.metadata.create_all(bind=engine)
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
 async def root() -> dict:
+    logger.debug("settings.app_name: %s", settings.app_name)
     return {"App name": settings.app_name, "Base directory": settings.base_directory}
 
 
 if __name__ == "__main__":
-    logging.debug("App Starting ...")
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    logger.info(f"Starting {settings.app_name}...")
+    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
