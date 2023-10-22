@@ -1,0 +1,25 @@
+{
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "black-formatter.args": [
+    "--config",
+    "${workspaceFolder}/pyproject.toml"
+  ],
+  "isort.args": [
+    "--config",
+    "${workspaceFolder}/pyproject.toml"
+  ],
+  "flake8.args": [
+    "--config",
+    "${workspaceFolder}/pyproject.toml"
+  ],
+  "mypy-type-checker.args": [
+    "--config-file",
+    "${workspaceFolder}/pyproject.toml"
+  ]
+}
